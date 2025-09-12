@@ -82,6 +82,65 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          department_name: string
+          id: string
+          issue_type: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          department_name: string
+          id?: string
+          issue_type: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          department_name?: string
+          id?: string
+          issue_type?: string
+        }
+        Relationships: []
+      }
+      issue_translations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          issue_id: string
+          language_code: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_id: string
+          language_code: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_id?: string
+          language_code?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_translations_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           address: string | null
@@ -95,8 +154,11 @@ export type Database = {
           id: string
           image_urls: string[] | null
           latitude: number | null
+          location_lat: number | null
+          location_lng: number | null
           longitude: number | null
           priority: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes: string | null
           resolved_at: string | null
           status: Database["public"]["Enums"]["issue_status"] | null
           title: string
@@ -119,8 +181,11 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           latitude?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes?: string | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["issue_status"] | null
           title: string
@@ -143,8 +208,11 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           latitude?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes?: string | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["issue_status"] | null
           title?: string
@@ -205,10 +273,13 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          google_id: string | null
           id: string
+          issues_reported_count: number | null
           location: string | null
           phone: string | null
           points: number | null
+          profile_pic_url: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
           user_id: string
@@ -219,10 +290,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_id?: string | null
           id?: string
+          issues_reported_count?: number | null
           location?: string | null
           phone?: string | null
           points?: number | null
+          profile_pic_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id: string
@@ -233,10 +307,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_id?: string | null
           id?: string
+          issues_reported_count?: number | null
           location?: string | null
           phone?: string | null
           points?: number | null
+          profile_pic_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id?: string
@@ -277,7 +354,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_dashboard: {
+        Row: {
+          active_users: number | null
+          avg_resolution_hours: number | null
+          department: string | null
+          in_progress_issues: number | null
+          issue_type: string | null
+          report_date: string | null
+          reported_issues: number | null
+          resolved_issues: number | null
+          total_issues: number | null
+          verified_issues: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
