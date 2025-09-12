@@ -115,18 +115,6 @@ const AnalyticsSection = ({ language }: AnalyticsSectionProps) => {
         responseTime: "Avg Response Time",
         satisfaction: "Satisfaction Score",
         engagement: "Community Engagement"
-      },
-      insights: {
-        title: "AI-Powered Insights",
-        predictions: "Predictive Analytics",
-        hotspots: "Issue Hotspots",
-        recommendations: "Recommendations"
-      },
-      kpi: {
-        resolutionRate: "Resolution Rate",
-        responseTime: "Avg Response Time",
-        satisfaction: "Satisfaction Score",
-        engagement: "Community Engagement"
       }
     },
     hi: {
@@ -145,6 +133,30 @@ const AnalyticsSection = ({ language }: AnalyticsSectionProps) => {
         citizenSatisfaction: "नागरिक संतुष्टि",
         activeReporters: "सक्रिय रिपोर्टर",
         pendingIssues: "लंबित समस्याएं"
+      },
+      charts: {
+        issuesByType: "प्रकार के अनुसार समस्याएं",
+        monthlyTrends: "मासिक रुझान",
+        resolutionPerformance: "लक्ष्य बनाम समाधान प्रदर्शन",
+        topLocations: "शीर्ष समस्या स्थान",
+        reported: "रिपोर्ट की गई",
+        resolved: "हल की गई",
+        pending: "लंबित",
+        days: "दिन",
+        target: "लक्ष्य",
+        actual: "वास्तविक"
+      },
+      insights: {
+        title: "AI-संचालित अंतर्दृष्टि",
+        predictions: "भविष्यवाणी विश्लेषण",
+        hotspots: "समस्या हॉटस्पॉट",
+        recommendations: "सिफारिशें"
+      },
+      kpi: {
+        resolutionRate: "समाधान दर",
+        responseTime: "औसत प्रतिक्रिया समय",
+        satisfaction: "संतुष्टि स्कोर",
+        engagement: "सामुदायिक सहभागिता"
       }
     },
     mr: {
@@ -163,6 +175,30 @@ const AnalyticsSection = ({ language }: AnalyticsSectionProps) => {
         citizenSatisfaction: "नागरिक समाधान",
         activeReporters: "सक्रिय रिपोर्टर",
         pendingIssues: "प्रलंबित समस्या"
+      },
+      charts: {
+        issuesByType: "प्रकारानुसार समस्या",
+        monthlyTrends: "मासिक ट्रेंड",
+        resolutionPerformance: "लक्ष्य विरुद्ध निराकरण कामगिरी",
+        topLocations: "शीर्ष समस्या स्थाने",
+        reported: "अहवाल दिला",
+        resolved: "निराकरण झाले",
+        pending: "प्रलंबित",
+        days: "दिवस",
+        target: "लक्ष्य",
+        actual: "वास्तविक"
+      },
+      insights: {
+        title: "AI-संचालित अंतर्दृष्टी",
+        predictions: "भविष्यसूचक विश्लेषण",
+        hotspots: "समस्या हॉटस्पॉट",
+        recommendations: "शिफारसी"
+      },
+      kpi: {
+        resolutionRate: "निराकरण दर",
+        responseTime: "सरासरी प्रतिसाद वेळ",
+        satisfaction: "समाधान स्कोर",
+        engagement: "समुदायिक सहभाग"
       }
     }
   };
