@@ -106,6 +106,47 @@ export type Database = {
         }
         Relationships: []
       }
+      interaction_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          id: string
+          improvement_suggestions: string | null
+          interaction_id: string | null
+          is_helpful: boolean | null
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          interaction_id?: string | null
+          is_helpful?: boolean | null
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          interaction_id?: string | null
+          is_helpful?: boolean | null
+          rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interaction_feedback_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "user_interactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issue_translations: {
         Row: {
           created_at: string
@@ -225,6 +266,54 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_base: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_public: boolean | null
+          priority_score: number | null
+          source_url: string | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          priority_score?: number | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          priority_score?: number | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -317,6 +406,251 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      search_analytics: {
+        Row: {
+          created_at: string
+          has_results: boolean | null
+          id: string
+          query_text: string
+          response_quality_score: number | null
+          result_count: number | null
+          search_context: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          has_results?: boolean | null
+          id?: string
+          query_text: string
+          response_quality_score?: number | null
+          result_count?: number | null
+          search_context?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          has_results?: boolean | null
+          id?: string
+          query_text?: string
+          response_quality_score?: number | null
+          result_count?: number | null
+          search_context?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      topic_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          keywords: string[] | null
+          last_notification_sent: string | null
+          notification_frequency: string | null
+          topic: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_notification_sent?: string | null
+          notification_frequency?: string | null
+          topic: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_notification_sent?: string | null
+          notification_frequency?: string | null
+          topic?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          ai_confidence_score: number | null
+          context_used: Json | null
+          created_at: string
+          id: string
+          query_text: string
+          response_data: Json | null
+          response_text: string | null
+          response_time_ms: number | null
+          response_type: string | null
+          session_id: string | null
+          sources_used: Json | null
+          user_id: string | null
+          user_location: unknown | null
+        }
+        Insert: {
+          ai_confidence_score?: number | null
+          context_used?: Json | null
+          created_at?: string
+          id?: string
+          query_text: string
+          response_data?: Json | null
+          response_text?: string | null
+          response_time_ms?: number | null
+          response_type?: string | null
+          session_id?: string | null
+          sources_used?: Json | null
+          user_id?: string | null
+          user_location?: unknown | null
+        }
+        Update: {
+          ai_confidence_score?: number | null
+          context_used?: Json | null
+          created_at?: string
+          id?: string
+          query_text?: string
+          response_data?: Json | null
+          response_text?: string | null
+          response_time_ms?: number | null
+          response_type?: string | null
+          session_id?: string | null
+          sources_used?: Json | null
+          user_id?: string | null
+          user_location?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          allow_data_collection: boolean | null
+          created_at: string
+          data_retention_days: number | null
+          id: string
+          language_preference: string | null
+          notification_preferences: Json | null
+          preferred_response_style: string | null
+          topics_of_interest: string[] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          allow_data_collection?: boolean | null
+          created_at?: string
+          data_retention_days?: number | null
+          id?: string
+          language_preference?: string | null
+          notification_preferences?: Json | null
+          preferred_response_style?: string | null
+          topics_of_interest?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          allow_data_collection?: boolean | null
+          created_at?: string
+          data_retention_days?: number | null
+          id?: string
+          language_preference?: string | null
+          notification_preferences?: Json | null
+          preferred_response_style?: string | null
+          topics_of_interest?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_recommendations: {
+        Row: {
+          clicked_at: string | null
+          created_at: string
+          id: string
+          interaction_id: string | null
+          is_clicked: boolean | null
+          is_dismissed: boolean | null
+          recommendation_type: string | null
+          recommended_content_id: string | null
+          shown_at: string | null
+          similarity_score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          interaction_id?: string | null
+          is_clicked?: boolean | null
+          is_dismissed?: boolean | null
+          recommendation_type?: string | null
+          recommended_content_id?: string | null
+          shown_at?: string | null
+          similarity_score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          interaction_id?: string | null
+          is_clicked?: boolean | null
+          is_dismissed?: boolean | null
+          recommendation_type?: string | null
+          recommended_content_id?: string | null
+          shown_at?: string | null
+          similarity_score?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_recommendations_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "user_interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_recommendations_recommended_content_id_fkey"
+            columns: ["recommended_content_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_base"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          session_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
