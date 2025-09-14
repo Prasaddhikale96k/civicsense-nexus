@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Menu, MapPin, Bell, User, Globe, Moon, Sun } from "lucide-react";
+import { Menu, MapPin, Bell, User, Globe, Moon, Sun, LogOut } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
+import AuthModal from "@/components/auth/AuthModal";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -14,6 +16,8 @@ interface HeaderProps {
 
 const Header = ({ darkMode, setDarkMode, language, setLanguage }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user, signOut, profile } = useAuth();
 
   const translations = {
     en: {
@@ -129,13 +133,24 @@ const Header = ({ darkMode, setDarkMode, language, setLanguage }: HeaderProps) =
           </Button>
 
           {/* Profile */}
-          <Button variant="ghost" size="sm" className="h-8 w-8 px-0">
-            <User className="h-4 w-4" />
-          </Button>
-
-          <Button variant="civic" size="sm">
-            {t.buttons.signIn}
-          </Button>
+          {user ? (
+            <>
+              <Button variant="ghost" size="sm" className="h-8 w-8 px-0">
+                <User className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-medium">
+                Hi, {profile?.full_name || user.email}
+              </span>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button variant="civic" size="sm" onClick={() => setAuthModalOpen(true)}>
+              {t.buttons.signIn}
+            </Button>
+          )}
 
           <Button variant="hero" size="sm" className="shadow-glow">
             {t.buttons.reportIssue}
@@ -188,9 +203,21 @@ const Header = ({ darkMode, setDarkMode, language, setLanguage }: HeaderProps) =
                   </Button>
                 </div>
 
-                <Button variant="civic" className="w-full">
-                  {t.buttons.signIn}
-                </Button>
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">
+                      Hi, {profile?.full_name || user.email}
+                    </div>
+                    <Button variant="ghost" onClick={signOut} className="w-full justify-start">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="civic" className="w-full" onClick={() => setAuthModalOpen(true)}>
+                    {t.buttons.signIn}
+                  </Button>
+                )}
 
                 <Button variant="hero" className="w-full">
                   {t.buttons.reportIssue}
@@ -200,6 +227,8 @@ const Header = ({ darkMode, setDarkMode, language, setLanguage }: HeaderProps) =
           </SheetContent>
         </Sheet>
       </div>
+      
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </header>
   );
 };

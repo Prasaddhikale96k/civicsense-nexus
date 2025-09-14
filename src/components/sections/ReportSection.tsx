@@ -7,6 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
+import AuthModal from "@/components/auth/AuthModal";
 import { 
   Camera, 
   MapPin, 
@@ -36,6 +40,9 @@ const ReportSection = ({ language }: ReportSectionProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedIssueType, setSelectedIssueType] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -43,6 +50,8 @@ const ReportSection = ({ language }: ReportSectionProps) => {
     urgency: "",
     category: "",
   });
+
+  const { user } = useAuth();
 
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
@@ -244,9 +253,37 @@ const ReportSection = ({ language }: ReportSectionProps) => {
     }
   };
 
-  const handleSubmit = () => {
-    // Here you would typically submit to your backend
-    setCurrentStep(5); // Success step
+  const handleSubmit = async () => {
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const { error } = await supabase
+        .from('issues')
+        .insert([
+          {
+            title: formData.title,
+            description: formData.description,
+            status: 'pending',
+            user_id: user.id,
+          }
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
+      setCurrentStep(5); // Success step
+    } catch (error: any) {
+      setSubmitError(error.message || 'Failed to submit report');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -566,6 +603,20 @@ const ReportSection = ({ language }: ReportSectionProps) => {
             </CardHeader>
 
             <CardContent>
+              {!user && currentStep === totalSteps && (
+                <Alert className="mb-6">
+                  <AlertDescription>
+                    Please sign in to submit a report. Your account allows you to track your issues and receive updates.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {submitError && (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertDescription>{submitError}</AlertDescription>
+                </Alert>
+              )}
+
               {renderStepContent()}
               
               {/* Navigation buttons */}
@@ -582,9 +633,9 @@ const ReportSection = ({ language }: ReportSectionProps) => {
                   <Button 
                     variant={currentStep === totalSteps ? "hero" : "civic"}
                     onClick={currentStep === totalSteps ? handleSubmit : handleNext}
-                    disabled={currentStep === 1 && !selectedIssueType}
+                    disabled={(currentStep === 1 && !selectedIssueType) || isSubmitting}
                   >
-                    {currentStep === totalSteps ? t.buttons.submit : t.buttons.next}
+                    {isSubmitting ? "Submitting..." : currentStep === totalSteps ? (user ? t.buttons.submit : "Sign In to Submit") : t.buttons.next}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -593,6 +644,8 @@ const ReportSection = ({ language }: ReportSectionProps) => {
           </Card>
         </div>
       </div>
+      
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </section>
   );
 };

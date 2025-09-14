@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/context/AuthContext";
+import type { Issue } from "@/types";
+import IssueCard from "./IssueCard";
 import { 
   Search, 
   MapPin, 
@@ -28,8 +32,38 @@ interface TrackingSectionProps {
 const TrackingSection = ({ language }: TrackingSectionProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  // Mock data for demonstration
+  // Fetch issues from Supabase
+  useEffect(() => {
+    fetchIssues();
+  }, []);
+
+  const fetchIssues = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('issues')
+        .select(`
+          *,
+          profiles (
+            full_name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setIssues(data || []);
+    } catch (error) {
+      console.error('Error fetching issues:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mock data for demonstration (keeping as fallback)
   const mockIssues = [
     {
       id: "CIV-2024-1234",
@@ -124,7 +158,8 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
         assigned: "Assigned",
         "in-progress": "In Progress",
         resolved: "Resolved",
-        closed: "Closed"
+        closed: "Closed",
+        pending: "Pending"
       },
       urgency: {
         low: "Low",
@@ -187,7 +222,8 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
         assigned: "सौंपी गई",
         "in-progress": "प्रगति में",
         resolved: "हल हो गई",
-        closed: "बंद"
+        closed: "बंद",
+        pending: "प्रतीक्षारत"
       },
       urgency: {
         low: "कम",
@@ -250,7 +286,8 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
         assigned: "नियुक्त",
         "in-progress": "प्रगतीत",
         resolved: "निराकरण झाले",
-        closed: "बंद"
+        closed: "बंद",
+        pending: "प्रलंबित"
       },
       urgency: {
         low: "कमी",
@@ -290,35 +327,19 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
 
   const t = translations[language as keyof typeof translations] || translations.en;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'status-new';
-      case 'verified': return 'bg-blue-500';
-      case 'assigned': return 'bg-purple-500';
-      case 'in-progress': return 'status-progress';
-      case 'resolved': return 'status-resolved';
-      case 'closed': return 'status-closed';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'low': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'high': return 'bg-orange-500';
-      case 'critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
-  const filteredIssues = mockIssues.filter(issue => {
+  const displayIssues = issues.length > 0 ? issues : mockIssues;
+  
+  const filteredIssues = displayIssues.filter((issue: any) => {
     const matchesSearch = issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          issue.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         issue.location.toLowerCase().includes(searchQuery.toLowerCase());
+                         (issue.location && issue.location.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFilter = selectedFilter === 'all' || issue.status === selectedFilter;
     return matchesSearch && matchesFilter;
   });
+
+  const userIssues = filteredIssues.filter((issue: any) => 
+    user && (issue.user_id === user.id || issue.reportedBy === user.email)
+  );
 
   return (
     <section id="track" className="py-20">
@@ -364,142 +385,61 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
               <TabsTrigger value="analytics">{t.tabs.analytics}</TabsTrigger>
             </TabsList>
 
-            {/* All Issues Tab */}
-            <TabsContent value="allIssues" className="space-y-6">
-              <div className="grid gap-6">
-                {filteredIssues.map((issue, index) => (
-                  <Card key={issue.id} className="interactive-card civic-shadow animate-fade-in-scale" style={{ animationDelay: `${index * 0.1}s` }}>
-                    <CardContent className="p-6">
-                      <div className="grid lg:grid-cols-3 gap-6">
-                        {/* Issue Info */}
-                        <div className="lg:col-span-2 space-y-4">
-                          <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="font-mono">
-                                  {issue.id}
-                                </Badge>
-                                <Badge className={`text-white ${getStatusColor(issue.status)}`}>
-                                  {t.status[issue.status as keyof typeof t.status]}
-                                </Badge>
-                                <Badge className={`text-white ${getUrgencyColor(issue.urgency)}`}>
-                                  {t.urgency[issue.urgency as keyof typeof t.urgency]}
-                                </Badge>
-                              </div>
-                              <h3 className="text-xl font-semibold">{issue.title}</h3>
-                              <p className="text-muted-foreground">{issue.description}</p>
-                            </div>
-                          </div>
-
-                          <div className="grid md:grid-cols-2 gap-4 text-sm">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">{t.issueCard.reportedBy}:</span>
-                                <span className="font-medium">{issue.reportedBy}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">{t.issueCard.location}:</span>
-                                <span className="font-medium">{issue.location}</span>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">{t.issueCard.reportedOn}:</span>
-                                <span className="font-medium">{issue.reportedDate}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">{t.issueCard.lastUpdate}:</span>
-                                <span className="font-medium">{issue.lastUpdate}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Progress */}
-                          <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium">{t.issueCard.progress}</span>
-                              <span className="text-sm text-muted-foreground">{issue.progress}%</span>
-                            </div>
-                            <Progress value={issue.progress} className="h-2" />
-                          </div>
-
-                          {/* Engagement Stats */}
-                          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <ThumbsUp className="h-4 w-4" />
-                              <span>{issue.votes} {t.issueCard.votes}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MessageSquare className="h-4 w-4" />
-                              <span>{issue.comments} {t.issueCard.comments}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Camera className="h-4 w-4" />
-                              <span>{issue.images} {t.issueCard.images}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Timeline */}
-                        <div className="space-y-4">
-                          <h4 className="font-semibold">{t.timeline.title}</h4>
-                          <div className="space-y-3">
-                            {issue.timeline.map((event, eventIndex) => (
-                              <div key={eventIndex} className="flex items-start gap-3">
-                                <div className={`w-3 h-3 rounded-full mt-1 ${getStatusColor(event.status)}`}></div>
-                                <div className="flex-1 space-y-1">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-sm font-medium capitalize">
-                                      {t.status[event.status as keyof typeof t.status] || event.status}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">{event.date}</span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground">{event.description}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex justify-between items-center mt-6 pt-4 border-t">
-                        <Button variant="outline" size="sm">
-                          <ThumbsUp className="h-4 w-4 mr-2" />
-                          {t.issueCard.upvote}
-                        </Button>
-                        <Button variant="civic" size="sm">
-                          <Eye className="h-4 w-4 mr-2" />
-                          {t.issueCard.viewDetails}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+            {/* My Issues Tab */}
+            <TabsContent value="myIssues" className="space-y-6">
+              {!user ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">Sign in to view your issues</h3>
+                    <p className="text-muted-foreground">Please sign in to track your reported issues</p>
+                  </CardContent>
+                </Card>
+              ) : userIssues.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">No issues reported yet</h3>
+                    <p className="text-muted-foreground">You haven't reported any issues yet. Submit your first report!</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-6">
+                  {userIssues.map((issue, index) => (
+                    <IssueCard key={issue.id} issue={issue} index={index} t={t} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
-            {/* My Issues Tab */}
-            <TabsContent value="myIssues">
-              <Card className="civic-shadow">
-                <CardContent className="p-12 text-center">
-                  <div className="space-y-4">
-                    <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                      <User className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold">Sign in to view your issues</h3>
-                      <p className="text-muted-foreground">Track your reported issues and their progress</p>
-                    </div>
-                    <Button variant="civic">Sign In</Button>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* All Issues Tab */}
+            <TabsContent value="allIssues" className="space-y-6">
+              {loading ? (
+                <div className="grid gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i}>
+                      <CardContent className="p-6">
+                        <div className="animate-pulse space-y-4">
+                          <div className="h-4 bg-muted rounded w-1/4"></div>
+                          <div className="h-6 bg-muted rounded w-3/4"></div>
+                          <div className="h-4 bg-muted rounded w-full"></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : filteredIssues.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <h3 className="text-lg font-semibold mb-2">No issues found</h3>
+                    <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-6">
+                  {filteredIssues.map((issue, index) => (
+                    <IssueCard key={issue.id} issue={issue} index={index} t={t} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
 
             {/* Analytics Tab */}
@@ -508,7 +448,7 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
                 <Card className="civic-shadow">
                   <CardContent className="p-6 text-center">
                     <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold">247</div>
+                    <div className="text-2xl font-bold">{filteredIssues.length}</div>
                     <div className="text-sm text-muted-foreground">{t.stats.totalIssues}</div>
                   </CardContent>
                 </Card>
@@ -516,23 +456,27 @@ const TrackingSection = ({ language }: TrackingSectionProps) => {
                 <Card className="civic-shadow">
                   <CardContent className="p-6 text-center">
                     <CheckCircle className="h-8 w-8 text-secondary mx-auto mb-2" />
-                    <div className="text-2xl font-bold">189</div>
+                    <div className="text-2xl font-bold">
+                      {filteredIssues.filter(issue => issue.status === 'resolved').length}
+                    </div>
                     <div className="text-sm text-muted-foreground">{t.stats.resolvedIssues}</div>
                   </CardContent>
                 </Card>
                 
                 <Card className="civic-shadow">
                   <CardContent className="p-6 text-center">
-                    <Clock className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold">4.2</div>
-                    <div className="text-sm text-muted-foreground">{t.stats.avgResolutionTime} (days)</div>
+                    <Clock className="h-8 w-8 text-accent mx-auto mb-2" />
+                    <div className="text-2xl font-bold">3.2</div>
+                    <div className="text-sm text-muted-foreground">{t.stats.avgResolutionTime}</div>
                   </CardContent>
                 </Card>
                 
                 <Card className="civic-shadow">
                   <CardContent className="p-6 text-center">
-                    <User className="h-8 w-8 text-secondary mx-auto mb-2" />
-                    <div className="text-2xl font-bold">12</div>
+                    <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                    <div className="text-2xl font-bold">
+                      {user ? userIssues.length : 0}
+                    </div>
                     <div className="text-sm text-muted-foreground">{t.stats.userReports}</div>
                   </CardContent>
                 </Card>
