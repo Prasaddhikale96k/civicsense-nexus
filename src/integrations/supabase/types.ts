@@ -82,6 +82,106 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          department_name: string
+          id: string
+          issue_type: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          department_name: string
+          id?: string
+          issue_type: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          department_name?: string
+          id?: string
+          issue_type?: string
+        }
+        Relationships: []
+      }
+      interaction_feedback: {
+        Row: {
+          created_at: string
+          feedback_text: string | null
+          id: string
+          improvement_suggestions: string | null
+          interaction_id: string | null
+          is_helpful: boolean | null
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          interaction_id?: string | null
+          is_helpful?: boolean | null
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feedback_text?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          interaction_id?: string | null
+          is_helpful?: boolean | null
+          rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interaction_feedback_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "user_interactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_translations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          issue_id: string
+          language_code: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_id: string
+          language_code: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_id?: string
+          language_code?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_translations_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           address: string | null
@@ -95,8 +195,11 @@ export type Database = {
           id: string
           image_urls: string[] | null
           latitude: number | null
+          location_lat: number | null
+          location_lng: number | null
           longitude: number | null
           priority: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes: string | null
           resolved_at: string | null
           status: Database["public"]["Enums"]["issue_status"] | null
           title: string
@@ -119,8 +222,11 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           latitude?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes?: string | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["issue_status"] | null
           title: string
@@ -143,8 +249,11 @@ export type Database = {
           id?: string
           image_urls?: string[] | null
           latitude?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
           longitude?: number | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
+          resolution_notes?: string | null
           resolved_at?: string | null
           status?: Database["public"]["Enums"]["issue_status"] | null
           title?: string
@@ -154,6 +263,54 @@ export type Database = {
           video_urls?: string[] | null
           view_count?: number | null
           voice_transcript?: string | null
+        }
+        Relationships: []
+      }
+      knowledge_base: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_public: boolean | null
+          priority_score: number | null
+          source_url: string | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          priority_score?: number | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          priority_score?: number | null
+          source_url?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -205,10 +362,13 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          google_id: string | null
           id: string
+          issues_reported_count: number | null
           location: string | null
           phone: string | null
           points: number | null
+          profile_pic_url: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
           user_id: string
@@ -219,10 +379,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_id?: string | null
           id?: string
+          issues_reported_count?: number | null
           location?: string | null
           phone?: string | null
           points?: number | null
+          profile_pic_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id: string
@@ -233,13 +396,261 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          google_id?: string | null
           id?: string
+          issues_reported_count?: number | null
           location?: string | null
           phone?: string | null
           points?: number | null
+          profile_pic_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      search_analytics: {
+        Row: {
+          created_at: string
+          has_results: boolean | null
+          id: string
+          query_text: string
+          response_quality_score: number | null
+          result_count: number | null
+          search_context: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          has_results?: boolean | null
+          id?: string
+          query_text: string
+          response_quality_score?: number | null
+          result_count?: number | null
+          search_context?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          has_results?: boolean | null
+          id?: string
+          query_text?: string
+          response_quality_score?: number | null
+          result_count?: number | null
+          search_context?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      topic_subscriptions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          keywords: string[] | null
+          last_notification_sent: string | null
+          notification_frequency: string | null
+          topic: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_notification_sent?: string | null
+          notification_frequency?: string | null
+          topic: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_notification_sent?: string | null
+          notification_frequency?: string | null
+          topic?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_interactions: {
+        Row: {
+          ai_confidence_score: number | null
+          context_used: Json | null
+          created_at: string
+          id: string
+          query_text: string
+          response_data: Json | null
+          response_text: string | null
+          response_time_ms: number | null
+          response_type: string | null
+          session_id: string | null
+          sources_used: Json | null
+          user_id: string | null
+          user_location: unknown | null
+        }
+        Insert: {
+          ai_confidence_score?: number | null
+          context_used?: Json | null
+          created_at?: string
+          id?: string
+          query_text: string
+          response_data?: Json | null
+          response_text?: string | null
+          response_time_ms?: number | null
+          response_type?: string | null
+          session_id?: string | null
+          sources_used?: Json | null
+          user_id?: string | null
+          user_location?: unknown | null
+        }
+        Update: {
+          ai_confidence_score?: number | null
+          context_used?: Json | null
+          created_at?: string
+          id?: string
+          query_text?: string
+          response_data?: Json | null
+          response_text?: string | null
+          response_time_ms?: number | null
+          response_type?: string | null
+          session_id?: string | null
+          sources_used?: Json | null
+          user_id?: string | null
+          user_location?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_interactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferences: {
+        Row: {
+          allow_data_collection: boolean | null
+          created_at: string
+          data_retention_days: number | null
+          id: string
+          language_preference: string | null
+          notification_preferences: Json | null
+          preferred_response_style: string | null
+          topics_of_interest: string[] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          allow_data_collection?: boolean | null
+          created_at?: string
+          data_retention_days?: number | null
+          id?: string
+          language_preference?: string | null
+          notification_preferences?: Json | null
+          preferred_response_style?: string | null
+          topics_of_interest?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          allow_data_collection?: boolean | null
+          created_at?: string
+          data_retention_days?: number | null
+          id?: string
+          language_preference?: string | null
+          notification_preferences?: Json | null
+          preferred_response_style?: string | null
+          topics_of_interest?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_recommendations: {
+        Row: {
+          clicked_at: string | null
+          created_at: string
+          id: string
+          interaction_id: string | null
+          is_clicked: boolean | null
+          is_dismissed: boolean | null
+          recommendation_type: string | null
+          recommended_content_id: string | null
+          shown_at: string | null
+          similarity_score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          interaction_id?: string | null
+          is_clicked?: boolean | null
+          is_dismissed?: boolean | null
+          recommendation_type?: string | null
+          recommended_content_id?: string | null
+          shown_at?: string | null
+          similarity_score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          created_at?: string
+          id?: string
+          interaction_id?: string | null
+          is_clicked?: boolean | null
+          is_dismissed?: boolean | null
+          recommendation_type?: string | null
+          recommended_content_id?: string | null
+          shown_at?: string | null
+          similarity_score?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_recommendations_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "user_interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_recommendations_recommended_content_id_fkey"
+            columns: ["recommended_content_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_base"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          session_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -277,7 +688,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_dashboard: {
+        Row: {
+          active_users: number | null
+          avg_resolution_hours: number | null
+          department: string | null
+          in_progress_issues: number | null
+          issue_type: string | null
+          report_date: string | null
+          reported_issues: number | null
+          resolved_issues: number | null
+          total_issues: number | null
+          verified_issues: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

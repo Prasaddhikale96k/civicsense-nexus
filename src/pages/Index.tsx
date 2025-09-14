@@ -4,6 +4,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import ReportSection from "@/components/sections/ReportSection";
 import TrackingSection from "@/components/sections/TrackingSection";
 import AnalyticsSection from "@/components/sections/AnalyticsSection";
+import AISection from "@/components/sections/AISection";
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -31,6 +32,7 @@ const Index = () => {
         <HeroSection language={language} />
         <ReportSection language={language} />
         <TrackingSection language={language} />
+        <AISection language={language} />
         <AnalyticsSection language={language} />
       </main>
 

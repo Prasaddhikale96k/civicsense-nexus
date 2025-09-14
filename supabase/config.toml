@@ -1,1 +1,26 @@
 project_id = "wavmbkruruokmuvsxtkb"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.auth]
+verify_jwt = false
+
+[functions.issues]
+verify_jwt = true
+
+[functions.translate]
+verify_jwt = false
+
+[functions.analytics]
+verify_jwt = true
+
+[functions.notifications]
+verify_jwt = true
+
+[functions.admin]
+verify_jwt = true
